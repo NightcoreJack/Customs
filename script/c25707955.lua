@@ -31,6 +31,17 @@ function cid.initial_effect(c)
 	e2:SetTarget(cid.sptg)
 	e2:SetOperation(cid.spop)
 	c:RegisterEffect(e2)
+	--tograve
+	local e3=Effect.CreateEffect(c)
+	e3:SetDescription(aux.Stringid(id,1))
+	e3:SetCategory(CATEGORY_TOGRAVE)
+	e3:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_TRIGGER_O)
+	e3:SetCode(EVENT_TO_GRAVE)
+	e3:SetProperty(EFFECT_FLAG_DAMAGE_STEP+EFFECT_FLAG_DELAY)
+	e3:SetCountLimit(1,{id,1})
+	e3:SetTarget(cid.tgtg)
+	e3:SetOperation(cid.tgop)
+	c:RegisterEffect(e3)
 end
 cid.listed_names={25707952}
 cid.listed_series={0x2dd}
@@ -71,4 +82,18 @@ function cid.spop(e,tp,eg,ep,ev,re,r,rp)
 end
 function cid.splimit(e,c)
 	return not c:IsType(TYPE_XYZ) and c:IsLocation(LOCATION_EXTRA)
+end
+function cid.tgfilter(c)
+	return c:IsSetCard(0x2dd) and not c:IsCode(id) and c:IsAbleToGrave()
+end
+function cid.tgtg(e,tp,eg,ep,ev,re,r,rp,chk)
+	if chk==0 then return Duel.IsExistingMatchingCard(cid.tgfilter,tp,LOCATION_DECK,0,1,nil) end
+	Duel.SetOperationInfo(0,CATEGORY_TOGRAVE,nil,1,tp,LOCATION_DECK)
+end
+function cid.tgop(e,tp,eg,ep,ev,re,r,rp)
+	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TOGRAVE)
+	local g=Duel.SelectMatchingCard(tp,cid.tgfilter,tp,LOCATION_DECK,0,1,1,nil)
+	if #g>0 then
+		Duel.SendtoGrave(g,REASON_EFFECT)
+	end
 end

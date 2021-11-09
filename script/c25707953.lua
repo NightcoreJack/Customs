@@ -31,6 +31,17 @@ function cid.initial_effect(c)
 	e2:SetTarget(cid.sptg)
 	e2:SetOperation(cid.spop)
 	c:RegisterEffect(e2)
+	--to hand
+	local e3=Effect.CreateEffect(c)
+	e3:SetDescription(aux.Stringid(id,1))
+	e3:SetCategory(CATEGORY_TOHAND)
+	e3:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_TRIGGER_O)
+	e3:SetProperty(EFFECT_FLAG_CARD_TARGET+EFFECT_FLAG_DELAY)
+	e3:SetCode(EVENT_TO_GRAVE)
+	e2:SetCountLimit(1,{id,1})
+	e3:SetTarget(cid.thtg)
+	e3:SetOperation(cid.thop)
+	c:RegisterEffect(e3)
 end
 cid.listed_names={25707952}
 function cid.costfilter(c)
@@ -76,4 +87,20 @@ function cid.spop(e,tp,eg,ep,ev,re,r,rp)
 end
 function cid.splimit(e,c)
 	return not c:IsType(TYPE_XYZ) and c:IsLocation(LOCATION_EXTRA)
+end
+function cid.filter(c)
+	return c:IsSetCard(0x2dd) and c:IsAbleToHand()
+end
+function cid.thtg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
+	if chkc then return chkc:IsLocation(LOCATION_GRAVE) and chkc:IsControler(tp) and cid.filter(chkc) end
+	if chk==0 then return Duel.IsExistingTarget(cid.filter,tp,LOCATION_GRAVE,0,1,e:GetHandler()) end
+	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_ATOHAND)
+	local g=Duel.SelectTarget(tp,cid.filter,tp,LOCATION_GRAVE,0,1,1,e:GetHandler())
+	Duel.SetOperationInfo(0,CATEGORY_TOHAND,g,1,0,0)
+end
+function cid.thop(e,tp,eg,ep,ev,re,r,rp)
+	local tc=Duel.GetFirstTarget()
+	if tc:IsRelateToEffect(e) then
+		Duel.SendtoHand(tc,nil,REASON_EFFECT)
+	end
 end
