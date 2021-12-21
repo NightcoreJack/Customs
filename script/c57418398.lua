@@ -1,12 +1,5 @@
 --Ascended Brightvale-Isaac
-local function getID()
-	local str=string.match(debug.getinfo(2,'S')['source'],"c%d+%.lua")
-	str=string.sub(str,1,string.len(str)-4)
-	local cod=_G[str]
-	local id=tonumber(string.sub(str,2))
-	return id,cod
-end
-local id,cid=getID()
+local cid, id = GetID()
 function cid.initial_effect(c)
 	--fusion material
 	c:EnableReviveLimit()
@@ -46,6 +39,33 @@ function cid.contactfil(tp)
 end
 function cid.contactop(g)
 	Duel.SendtoGrave(g,REASON_COST+REASON_MATERIAL)
+end
+function cid.spfilter1(c,tp,sc)
+	return c:IsFusionSetCard(0x9c4) and c:IsFusionType(TYPE_FUSION) and c:IsCanBeFusionMaterial(sc,true) and c:IsAbleToGraveAsCost()
+		and Duel.IsExistingMatchingCard(cid.spfilter2,tp,LOCATION_ONFIELD,0,1,c,sc)
+end
+function cid.spfilter2(c,sc)
+	return c:IsFusionSetCard(0x9c4) and c:IsFusionType(TYPE_MONSTER) and c:IsCanBeFusionMaterial(sc,true) and c:IsAbleToGraveAsCost()
+end
+function cid.sprcon(e,c)
+	if c==nil then return true end
+	local tp=c:GetControler()
+	return Duel.GetLocationCount(tp,LOCATION_MZONE)>-2
+		and Duel.IsExistingMatchingCard(cid.spfilter1,tp,LOCATION_ONFIELD,0,1,nil,tp,c)
+end
+function cid.sprop(e,tp,eg,ep,ev,re,r,rp,c)
+	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TOGRAVE)
+	local g1=Duel.SelectMatchingCard(tp,cid.spfilter1,tp,LOCATION_ONFIELD,0,1,1,nil,tp,c)
+	local tc=g1:GetFirst()
+	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TOGRAVE)
+	local g2=Duel.SelectMatchingCard(tp,cid.spfilter2,tp,LOCATION_ONFIELD,0,1,1,tc,c)
+	g1:Merge(g2)
+	local tc=g1:GetFirst()
+	while tc do
+		if not tc:IsFaceup() then Duel.ConfirmCards(1-tp,tc) end
+		tc=g1:GetNext()
+	end
+	Duel.SendtoGrave(g1,REASON_COST)
 end
 function cid.tdfilter(c)
 	return c:IsSetCard(0x9c4) and (c:IsAbleToDeck() or c:IsAbleToExtra())
