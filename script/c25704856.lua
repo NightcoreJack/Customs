@@ -27,13 +27,16 @@ function cid.initial_effect(c)
 	e3:SetDescription(aux.Stringid(id,1))
 	e3:SetCategory(CATEGORY_TODECK)
 	e3:SetType(EFFECT_TYPE_QUICK_O)
+	e3:SetProperty(EFFECT_FLAG_CARD_TARGET)
 	e3:SetCode(EVENT_FREE_CHAIN)
 	e3:SetRange(LOCATION_MZONE)
 	e3:SetCountLimit(1)
-	e3:SetProperty(EFFECT_FLAG_CARD_TARGET)
-	e3:SetTarget(cid.tdtg)
-	e3:SetOperation(cid.tdop)
+	e3:SetHintTiming(0,TIMINGS_CHECK_MONSTER_E)
+	e3:SetTarget(cid.thtg)
+	e3:SetOperation(cid.thop)
 	c:RegisterEffect(e3)
+	if not AshBlossomTable then AshBlossomTable={} end
+	table.insert(AshBlossomTable,e3)
 end
 function cid.atkcon(e)
 	return Duel.IsExistingMatchingCard(aux.FilterFaceupFunction(Card.IsCode,25704857),e:GetHandlerPlayer(),LOCATION_MZONE,0,1,nil)
@@ -52,20 +55,37 @@ function cid.tgop(e,tp,eg,ep,ev,re,r,rp)
 		Duel.SendtoGrave(g,REASON_EFFECT+REASON_RETURN)
 	end
 end
-function cid.tdfilter(c)
+function cid.thfilter(c)
 	return c:IsFaceup() and c:IsAbleToDeck()
 end
-function cid.tdtg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
-	if chkc then return chkc:IsControler(1-tp) and chkc:IsOnField() and cid.tdfilter(chkc) end
-	if chk==0 then return Duel.IsExistingTarget(cid.tdfilter,tp,0,LOCATION_ONFIELD,1,nil) end
+function cid.thtg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
+	if chkc then return chkc:IsLocation(LOCATION_MZONE) and chkc:IsControler(1-tp) and chkc:IsAbleToDeck() end
+	if chk==0 then return Duel.IsExistingTarget(cid.thfilter,tp,0,LOCATION_MZONE,1,nil) end
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TODECK)
-	local g=Duel.SelectTarget(tp,cid.tdfilter,tp,0,LOCATION_ONFIELD,1,1,nil)
-	Duel.SetOperationInfo(0,CATEGORY_TODECK,g,1,0,0)
+	local g=Duel.SelectTarget(tp,cid.thfilter,tp,0,LOCATION_MZONE,1,1,nil)
+	g:AddCard(e:GetHandler())
+	Duel.SetOperationInfo(0,CATEGORY_TODECK,g,2,0,0)
 end
-function cid.tdop(e,tp,eg,ep,ev,re,r,rp)
+function cid.cfilter(c,code)
+	return c:IsCode(code) and c:IsAbleToGraveAsCost()
+end
+function cid.thop(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
+	if not c:IsRelateToEffect(e) then return end
 	local tc=Duel.GetFirstTarget()
-	if tc:IsRelateToEffect(e) and Duel.SendtoDeck(tc,nil,0,REASON_EFFECT)~=0 and c:IsRelateToEffect(e) and Duel.SendtoDeck(c,nil,0,REASON_EFFECT)~=0 then
+	if Duel.IsChainDisablable(0) then
+		local g=Duel.GetMatchingGroup(cid.cfilter,tp,0,LOCATION_DECK+LOCATION_EXTRA,nil,tc:GetCode())
+		if #g>0 and Duel.SelectYesNo(1-tp,aux.Stringid(id,2)) then
+			Duel.Hint(HINT_SELECTMSG,1-tp,HINTMSG_TOGRAVE)
+			local sg=g:Select(1-tp,1,1,nil)
+			Duel.SendtoGrave(sg,REASON_EFFECT)
+			Duel.NegateEffect(0)
+			return
+		end
+	end
+	if tc:IsRelateToEffect(e) then
+		local rg=Group.FromCards(c,tc)
+		Duel.SendtoDeck(rg,nil,0,REASON_EFFECT)
 		Duel.ConfirmDecktop(1-tp,1)
 		Duel.ConfirmDecktop(tp,1)
 	end

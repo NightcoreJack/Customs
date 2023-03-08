@@ -46,7 +46,7 @@ function cid.thop(e,tp,eg,ep,ev,re,r,rp)
 	end
 end
 function cid.repfilter(c,tp)
-	return c:IsFaceup() and c:IsControler(tp) and c:IsOnField() and (c:IsSetCard(0x41a) or c:IsCode(62966332))
+	return c:IsFaceup() and c:IsControler(tp) and c:IsOnField() and (c:IsSetCard(0x41a) or c:IsCode(CARD_CONVULSION))
 		and not c:IsReason(REASON_REPLACE) and c:IsReason(REASON_EFFECT)
 end
 function cid.reptg(e,tp,eg,ep,ev,re,r,rp,chk)

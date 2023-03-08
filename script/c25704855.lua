@@ -54,7 +54,7 @@ function cid.drop(e,tp,eg,ep,ev,re,r,rp)
 	Duel.Draw(p,d,REASON_EFFECT)
 end
 function cid.negfilter(c,tp)
-	return c:IsFaceup() and (c:IsSetCard(0x41a) or c:IsCode(62966332)) and c:IsControler(tp)
+	return c:IsLocation(LOCATION_ONFIELD) and c:IsFaceup() and (c:IsSetCard(0x41a) or c:IsCode(CARD_CONVULSION)) and c:IsControler(tp)
 end
 function cid.negcon(e,tp,eg,ep,ev,re,r,rp)
 	if not (rp==1-tp and re:IsHasProperty(EFFECT_FLAG_CARD_TARGET)) then return false end

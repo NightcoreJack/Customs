@@ -31,7 +31,7 @@ function cid.thcost(e,tp,eg,ep,ev,re,r,rp,chk)
 	Duel.SendtoGrave(e:GetHandler(),REASON_COST+REASON_DISCARD)
 end
 function cid.thfilter1(c)
-	return c:IsCode(25704859) and c:IsAbleToHand()
+	return c:IsSetCard(0x41a) and c:IsType(TYPE_QUICKPLAY) and c:IsAbleToHand()
 end
 function cid.thfilter2(c)
 	return c:IsSetCard(0x41a) and c:IsRitualMonster() and c:IsAbleToHand()

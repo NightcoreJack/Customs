@@ -74,9 +74,9 @@ function cid.thcon(e,tp,eg,ep,ev,re,r,rp)
 end
 function cid.thfilter(c,tp)
 	return c:IsSetCard(0x41a) and c:IsRitualMonster() and c:IsAbleToHand()
-		and Duel.IsExistingMatchingCard(cid.tgfilter,tp,LOCATION_DECK,0,1,c)
+		and Duel.IsExistingMatchingCard(cid.tgfilter1,tp,LOCATION_DECK,0,1,c)
 end
-function cid.tgfilter(c)
+function cid.tgfilter1(c)
 	return c:IsType(TYPE_MONSTER) and c:IsSetCard(0x41a) and c:IsAbleToGrave()
 end
 function cid.thtg(e,tp,eg,ep,ev,re,r,rp,chk)
@@ -91,7 +91,7 @@ function cid.thop(e,tp,eg,ep,ev,re,r,rp)
 		and hg:GetFirst():IsLocation(LOCATION_HAND) then
 		Duel.ConfirmCards(1-tp,hg)
 		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TOGRAVE)
-		local g=Duel.SelectMatchingCard(tp,cid.tgfilter,tp,LOCATION_DECK,0,1,1,nil)
+		local g=Duel.SelectMatchingCard(tp,cid.tgfilter1,tp,LOCATION_DECK,0,1,1,nil)
 		if #g>0 then
 			Duel.SendtoGrave(g,REASON_EFFECT)
 		end
