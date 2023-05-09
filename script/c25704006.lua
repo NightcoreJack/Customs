@@ -14,7 +14,7 @@ function s.initial_effect(c)
 	c:RegisterEffect(e1)
 end
 function s.filter(c,ft)
-	return c:IsAttribute(ATTRIBUTE_EARTH) and c:IsAbleToHand() and (ft>0 or c:GetSequence()<5)
+	return c:IsFaceup() and c:IsAttribute(ATTRIBUTE_EARTH) and c:IsAbleToHand() and (ft>0 or c:GetSequence()<5)
 end
 function s.target(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 	local ft=Duel.GetLocationCount(tp,LOCATION_MZONE)
